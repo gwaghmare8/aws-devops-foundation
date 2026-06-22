@@ -4,4 +4,4 @@ output "public_ip" {
 
 output "vpc_id" {
   value = aws_vpc.vpc.id
-}
+} 

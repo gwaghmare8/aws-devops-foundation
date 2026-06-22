@@ -1,121 +1,94 @@
-# AWS DevOps Foundation Project
+# Phase 1 Architecture
 
-This repository is a long-term AWS infrastructure project built with Terraform. The goal is to grow one reusable platform over time while learning how to provision, secure, monitor, and automate cloud resources.
+This folder provisions a simple AWS networking and compute setup for the first phase of the project.
 
-## Project Roadmap
+## What this architecture creates
 
-We are building this repository in phases and will continue improving it over the coming weeks.
-
-- ✅ **Phase 1** – VPC + EC2 *(completed)*
-- 🚧 **Phase 2** – Private subnet + NAT Gateway + RDS
-- 🔜 **Phase 3** – ALB + Auto Scaling
-- 🔜 **Phase 4** – IAM + Secrets Manager + SSM
-- 🔜 **Phase 5** – GitHub Actions + Terraform validation
-- 🔜 **Phase 6** – CloudWatch + New Relic + Grafana
-- 🔜 **Phase 7** – Modular Terraform refactor
-- 🔜 **Phase 8** – Production hardening (remote state, locking, reusable modules)
-
-## Current Status
-
-The repository currently includes the setup for **Phase 1**, which provisions:
+The Terraform configuration deploys:
 
 - 1 VPC
 - 1 public subnet
-- 1 internet gateway
-- 1 public route table
-- 1 security group allowing HTTP (80) and SSH (22)
-- 1 EC2 instance running Amazon Linux
+- 1 Internet Gateway
+- 1 public route table with a default route to the Internet Gateway
+- 1 security group allowing inbound traffic on ports 22 and 80
+- 1 EC2 instance running Amazon Linux 2023
 - A user data script that installs and starts NGINX
 
-This means the current setup is a basic public-facing infrastructure example that demonstrates networking, EC2 deployment, and bootstrap configuration.
+## Network layout
 
-## Repository Structure
+- VPC CIDR: `10.0.0.0/16`
+- Public subnet CIDR: `10.0.1.0/24`
+- Region: `eu-west-3` (default)
 
-```text
-.
-├── docs/
-├── scripts/
-├── terraform/
-│   ├── phase-1-vpc-ec2/
-│   └── phase-2-networking/
-└── README.md
-```
+## EC2 details
 
-## Phase 1 Terraform Files
+- Instance type: `t3.micro` (default)
+- SSH key pair: configured via the `key_name` variable
+- The instance is launched in the public subnet and uses the security group to allow HTTP and SSH access
 
-- [terraform/phase-1-vpc-ec2/ec2.tf](terraform/phase-1-vpc-ec2/ec2.tf) — EC2 instance configuration
-- [terraform/phase-1-vpc-ec2/vpc.tf](terraform/phase-1-vpc-ec2/vpc.tf) — VPC configuration
-- [terraform/phase-1-vpc-ec2/subnets.tf](terraform/phase-1-vpc-ec2/subnets.tf) — public subnet configuration
-- [terraform/phase-1-vpc-ec2/route_table.tf](terraform/phase-1-vpc-ec2/route_table.tf) — route table and association
-- [terraform/phase-1-vpc-ec2/sg.tf](terraform/phase-1-vpc-ec2/sg.tf) — security group rules
-- [terraform/phase-1-vpc-ec2/variables.tf](terraform/phase-1-vpc-ec2/variables.tf) — variable definitions
-- [terraform/phase-1-vpc-ec2/outputs.tf](terraform/phase-1-vpc-ec2/outputs.tf) — Terraform outputs
-- [terraform/phase-1-vpc-ec2/README.md](terraform/phase-1-vpc-ec2/README.md) — detailed phase 1 documentation
+## Required inputs
 
-## Prerequisites
+Before running Terraform, you must provide or confirm the following values:
 
-Before running the Terraform configuration, make sure you have:
+- `aws_region` (default: `eu-west-3`)
+- `vpc_cidr` (default: `10.0.0.0/16`)
+- `public_subnet_cidr` (default: `10.0.1.0/24`)
+- `instance_type` (default: `t3.micro`)
+- `key_name` (required) — the name of an existing EC2 key pair in your AWS account
 
-- An AWS account and AWS CLI access configured
-- Terraform installed locally
-- A valid EC2 key pair created in AWS
-- Permission to create EC2, VPC, subnet, route table, and security group resources
+> The `key_name` value is not created automatically by this configuration. You must create the key pair in AWS first and use its name here.
 
-## Getting Started
+## Outputs
 
-1. Navigate to the phase 1 directory:
-   ```bash
-   cd terraform/phase-1-vpc-ec2
-   ```
+After `terraform apply`, Terraform will output:
 
-2. Initialize Terraform:
+- `public_ip` — the EC2 instance public IP address
+- `vpc_id` — the VPC ID
+
+## Deployment steps
+
+1. Initialize Terraform:
    ```bash
    terraform init
    ```
 
-3. Review the deployment plan:
+2. Review the plan:
    ```bash
    terraform plan
    ```
 
-4. Apply the configuration:
+3. Apply the configuration:
    ```bash
    terraform apply
    ```
 
-5. Check outputs:
+4. View outputs:
    ```bash
    terraform output
    ```
 
-## Outputs
+## Accessing the instance
 
-The current Terraform configuration outputs:
+Once the instance is running:
 
-- `public_ip` — the public IP address of the EC2 instance
-- `vpc_id` — the ID of the created VPC
+- You can access the web server via the public IP on port 80
+- You can SSH into the instance using the private key associated with the configured key pair
+
+Example:
+
+```bash
+ssh -i /path/to/your-key.pem ec2-user@<public_ip>
+```
 
 ## Cleanup
 
-To remove all resources created by Terraform:
+To remove all created resources:
 
 ```bash
 terraform destroy
 ```
 
-## Learning Goals
-
-This repository is designed to help demonstrate:
-
-- Infrastructure as Code with Terraform
-- Basic AWS networking setup
-- EC2 deployment and bootstrap scripts
-- Security group configuration
-- Documentation and output practices for cloud infrastructure
-- Gradual progression toward a more production-ready architecture
-
 ## Notes
 
-- The `key_name` variable must match an existing EC2 key pair in your AWS account.
-- The user data script installs NGINX automatically during instance startup.
-- The next phases will build on this baseline and add more security, scalability, and observability.
+- The user data script installs NGINX automatically when the EC2 instance starts.
+- This phase focuses on a basic public networking setup and a single web server.
