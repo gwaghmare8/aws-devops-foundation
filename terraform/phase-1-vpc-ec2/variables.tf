@@ -16,4 +16,9 @@ variable "instance_type" {
 
 variable "key_name" {
   description = "Your AWS key pair name"
+  default = "acp-project"
+}
+
+variable "private_subnet_cidr" {
+  default = "10.0.2.0/24"
 }
