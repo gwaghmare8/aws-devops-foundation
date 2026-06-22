@@ -39,3 +39,7 @@ terraform.rc
 .DS_Store
 .terraform.lock.hcl
 checkov_output.json
+.terraform/
+*.tfstate
+*.tfstate.backup
+.DS_Store
