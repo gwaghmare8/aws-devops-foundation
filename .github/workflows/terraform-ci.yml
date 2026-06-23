@@ -16,12 +16,12 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: /environments/phase-2
+        working-directory: environments/phase-2
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory: /environments/phase-2
+        working-directory: environments/phase-2
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: /environments/phase-2
+        working-directory: environments/phase-2
